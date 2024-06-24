@@ -45,7 +45,8 @@ class AnnotationsController:
                 bbox[1] = bbox[1] / ann["page_size"]["height"]
                 bbox[3] = bbox[3] / ann["page_size"]["height"]
         new_width, new_height = self.resize_proportionally(
-            ann["page_size"]["width"], ann["page_size"]["height"], 1400
+            # ann["page_size"]["width"], ann["page_size"]["height"], 1400
+            2497, 3508, 1400
         )
         ann["page_size"]["width"], ann["page_size"]["height"] = new_width, new_height
         return ann

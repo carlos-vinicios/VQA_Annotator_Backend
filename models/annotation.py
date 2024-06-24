@@ -35,7 +35,7 @@ class QAs(EmbeddedDocument):
     answer = StringField(required=True)
     region = StringField()
     text = StringField()
-    answer_bboxes = ListField(ListField(IntField()), required=True)
+    answer_bboxes = ListField(ListField(IntField()))
     votes = EmbeddedDocumentListField(Vote, required=True)
 
 class Annotations(DynamicDocument):

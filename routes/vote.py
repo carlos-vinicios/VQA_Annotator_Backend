@@ -7,7 +7,7 @@ from controller.annotations import AnnotationsController
 
 @router.get("/vote/next", response_model=Annotation)
 def get_page_to_vote(
-    # _ = Security(get_current_active_user),
+    _ = Security(get_current_active_user),
     annotations: AnnotationsController = Depends(AnnotationsController)
 ):
     page = annotations.get_next_vote_metadata()
