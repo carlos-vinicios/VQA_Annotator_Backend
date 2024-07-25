@@ -1,7 +1,8 @@
 from mongoengine import (
     DynamicDocument, EmbeddedDocument, 
     IntField, StringField, EmbeddedDocumentField,
-    ListField, FloatField, EmbeddedDocumentListField
+    ListField, FloatField, EmbeddedDocumentListField,
+    BooleanField
 )
 
 class PageDimension(EmbeddedDocument):
@@ -18,17 +19,25 @@ class Usage(EmbeddedDocument):
     prices = EmbeddedDocumentField(Prices)
     total = IntField(required=True)
 
-class EvaluationVote(EmbeddedDocument):
-    coherence = IntField(required=True)
-    objectivity = IntField(required=True)
-    overall = IntField(required=True)
-    accuracy = IntField()
+# class EvaluationVote(EmbeddedDocument):
+#     relevance = IntField()
+#     coherence = IntField()
+#     objectivity = IntField()
+#     overall = IntField()
+#     accuracy = IntField()
+
+# class Vote(EmbeddedDocument):
+#     question = EmbeddedDocumentField(EvaluationVote, required=True)
+#     answer = EmbeddedDocumentField(EvaluationVote, required=True)
+#     model = StringField(required=True)
 
 class Vote(EmbeddedDocument):
-    overall = IntField(required=True)
-    question = EmbeddedDocumentField(EvaluationVote, required=True)
-    answer = EmbeddedDocumentField(EvaluationVote, required=True)
+    coherent = BooleanField()
+    relevant = BooleanField()
+    correct = BooleanField()
     model = StringField(required=True)
+
+    meta = {'strict': False}
 
 class QAs(EmbeddedDocument):
     question = StringField(required=True)
@@ -40,7 +49,7 @@ class QAs(EmbeddedDocument):
 
 class Annotations(DynamicDocument):
     filename = StringField(required=True)
-    extracted_filename = StringField(required=True)
+    # extracted_filename = StringField(required=True)
     ticker = StringField(required=True)
     model = StringField(required=True)
     page = IntField(required=True)
@@ -48,7 +57,8 @@ class Annotations(DynamicDocument):
     questions = EmbeddedDocumentListField(QAs, required=True)
     cost = EmbeddedDocumentField(Usage, null=True)
     review_counts = IntField()
+    user = StringField(required=True)
     
     meta = {
-        'collection': 'Annotations1_1'
+        'collection': 'Annotations5_1'
     }
