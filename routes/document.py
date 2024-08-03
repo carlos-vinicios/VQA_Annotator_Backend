@@ -17,12 +17,11 @@ def get_page_to_vote(
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="PDF file not found")
     
-@router.get("/document/visualization/{filename}/{gen_model}", response_model=Annotation)
+@router.get("/document/visualization/{file_id}", response_model=Annotation)
 def get_page_to_vote(
     user = Security(get_current_active_user),
     annotations: AnnotationsController = Depends(AnnotationsController),
-    filename: str = Path(..., description="Name of the file to visualization"),
-    gen_model: str = Path(..., description="Name of the QA generation model")
+    file_id: str = Path(..., description="Identifier of the file to visualization"),
 ):
-    page = annotations.get_annotation(filename, gen_model, user)
+    page = annotations.get_annotation(file_id, user)
     return page

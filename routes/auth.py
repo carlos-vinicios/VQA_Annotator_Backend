@@ -2,6 +2,7 @@ from fastapi import HTTPException, Depends, Security
 from services.router import router
 from services.context import security
 from schemas.token import Token
+from schemas.user import UserAuth
 from fastapi.security import (
     OAuth2PasswordRequestForm,
     HTTPAuthorizationCredentials
@@ -9,6 +10,7 @@ from fastapi.security import (
 from controller.user import UserController
 from controller.auth import AuthController
 import jwt
+from mongoengine.errors import NotUniqueError
 
 @router.post("/login", response_model=Token)
 async def login(
@@ -29,6 +31,21 @@ async def login(
     })
 
     return response 
+
+@router.post("/register")
+async def singup(
+    user: UserAuth,
+    users = Depends(UserController)
+):
+    if not user.consent:
+        raise HTTPException(status_code=400, detail="É necessário o consentimento.")
+    
+    try:
+        users.new_user(user)
+    except NotUniqueError:
+        raise HTTPException(status_code=400, detail="E-mail já foi cadastrado na base de dados.")
+    
+    return "Usuário cadastrado com sucesso"
 
 @router.post("/refresh_token", response_model=Token)
 async def refresh(

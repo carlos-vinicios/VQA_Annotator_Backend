@@ -32,7 +32,7 @@ class AnswerVote(BaseModel):
 
 class Vote(BaseModel):
     coherent: bool
-    relevant: bool
+    # relevant: bool
     correct: bool
     model: str
 

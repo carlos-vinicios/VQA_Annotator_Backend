@@ -1,28 +1,28 @@
 from services.context import pwd_context
-from schemas.user import UserBase
+from schemas.user import UserAuth
 from models.user import User
-import secrets, string
+from controller.queue import AnnotationQueue
+from env import EnvironmentVariables
+
+ENV_VARS = EnvironmentVariables()
 
 class UserController:
 
     def __init__(self) -> None:
         self.pwd_context = pwd_context
+        self.annotation_queue = AnnotationQueue(
+            ENV_VARS.MONGODB_URI
+        )
 
-    # def __gen_password(self) -> str:
-    #     # define the alphabet
-    #     letters = string.ascii_letters
-    #     digits = string.digits
-    #     special_chars = string.punctuation
-    #     pwd_length = 6
-    #     alphabet = letters + digits + special_chars
-    #     pwd = ''
-    #     for i in range(pwd_length):
-    #         pwd += ''.join(secrets.choice(alphabet))
-    #     return pwd
-
-    # def get_password_hash(self, password):
-    #     return self.pwd_context.hash(password)
-    
     def get_user(self, email: str) -> User:
         return User.objects(email=email).first()
+
+    def new_user(self, user: UserAuth):
+        """Cria um novo usuário na base dados"""
+        user_data = user.model_dump()
+        user_data.pop('consent')
+        User(**user_data).save()
+        
+        #atribuindo arquivos para aquele usuário
+        self.annotation_queue.add_user_to_queue(user.email)
     

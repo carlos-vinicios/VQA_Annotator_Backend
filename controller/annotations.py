@@ -44,8 +44,18 @@ class AnnotationsController:
         annotation["page_size"]["width"], annotation["page_size"]["height"] = new_width, new_height
         return annotation
 
-    def get_next_vote_metadata(self, user):
-        ann = Annotations.objects(review_counts__lte=1, user=user.email).first()
+    def list_annotations_metadata(self, user):
+        anns = Annotations.objects(user=user.email)
+        if len(anns) == 0:
+            raise HTTPException(
+                status_code=404,
+                detail="Não foram encontrados mais nenhum arquivo para anotação."
+            )
+        
+        return [self.parse_bboxes(ann) for ann in anns]
+
+    def get_annotation_metadata(self, user):
+        ann = Annotations.objects(review_counts__lte=0, user=user.email).first()
         if ann is None:
             raise HTTPException(
                 status_code=404,
@@ -53,8 +63,8 @@ class AnnotationsController:
             )
         return self.parse_bboxes(ann)
 
-    def get_annotation(self, filename, gen_model, user):
-        ann = Annotations.objects(filename=filename, model=gen_model, user=user.email).first()
+    def get_annotation(self, file_id, user):
+        ann = Annotations.objects(id=file_id, user=user.email).first()
         if ann is None:
             raise HTTPException(
                 status_code=404,
@@ -73,12 +83,12 @@ class AnnotationsController:
             filename
         )
 
-    def save_votes(self, file_id, votes):
+    def save_evaluation(self, file_id, evaluations):
         annotation = Annotations.objects.get(id=file_id)
 
-        for vote, question in zip(votes, annotation.questions):
-            final_vote = vote.model_dump()        
-            question.votes.append(Vote(**final_vote))
+        for evaluation, question in zip(evaluations, annotation.questions):
+            final_eval = evaluation.model_dump()        
+            question.votes.append(Vote(**final_eval))
         
         annotation.review_counts += 1
         annotation.save()
