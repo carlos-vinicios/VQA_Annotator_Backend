@@ -1,8 +1,8 @@
 from pydantic import BaseModel
-from typing import List, Union
-from schemas.user import UserBase
+from typing import Union
 
-class Token(UserBase):
+class Token(BaseModel):
+    email: str
     access_token: str
     refresh_token: Union[str, None] = None
 

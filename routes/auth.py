@@ -23,12 +23,12 @@ async def login(
     
     access_token = auth.create_access_token(user.email)
     refresh_token = auth.create_refresh_token(user.email)
-    response = user.to_mongo().to_dict()
-    response.update({
+    response = {
+        "email": user.email,
         "access_token": access_token, 
         "refresh_token": refresh_token, 
         "token_type": "bearer", 
-    })
+    }
 
     return response 
 
