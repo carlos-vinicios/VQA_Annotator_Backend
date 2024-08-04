@@ -6,7 +6,7 @@ class AnnotationQueue:
     
     def __init__(self, 
                  connection_string,
-                 files_per_user=20, qtd_cross_files=5, 
+                 files_per_user=40, qtd_cross_files=10, 
                  group_size=3, db_name="DOC_VQA", 
                  collection_name="configs"
                 ) -> None:
@@ -19,8 +19,7 @@ class AnnotationQueue:
         self.client = MongoClient(connection_string)
         self.db = self.client[db_name]
         self.collection = self.db[collection_name]
-        # self.files_collection = self.db[]
-        
+            
         # Carregar estado do MongoDB
         self._load_state()
     

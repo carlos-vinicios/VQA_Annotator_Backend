@@ -87,8 +87,15 @@ class AnnotationsController:
         annotation = Annotations.objects.get(id=file_id)
 
         for evaluation, question in zip(evaluations, annotation.questions):
-            final_eval = evaluation.model_dump()        
-            question.votes.append(Vote(**final_eval))
+            final_eval = evaluation.model_dump()
+            i = -1
+            for i, vote in enumerate(question.votes):
+                if vote.model == "human":
+                    break
+            if i == -1:
+                question.votes.append(Vote(**final_eval))
+            else:
+                question.votes[i] = Vote(**final_eval)
         
         annotation.review_counts += 1
         annotation.save()
