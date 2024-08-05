@@ -57,7 +57,7 @@ class Annotations(DynamicDocument):
     questions = EmbeddedDocumentListField(QAs, required=True)
     cost = EmbeddedDocumentField(Usage, null=True)
     review_counts = IntField()
-    user = StringField(required=True)
+    user = ListField()
     
     meta = {
         'collection': 'FinalAnnotations'
