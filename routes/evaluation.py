@@ -25,8 +25,8 @@ def get_page_to_evaluate(
 def save_page_evaluation(
     votes: List[Vote],
     file_id: str = Path(..., description="The ID of the annotation voted"),
-    _ = Security(get_current_active_user),
+    user = Security(get_current_active_user),
     annotations: AnnotationsController = Depends(AnnotationsController),
 ):
-    annotations.save_evaluation(file_id, votes)
+    annotations.save_evaluation(file_id, votes, user)
     return "saved"

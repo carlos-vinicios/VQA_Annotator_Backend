@@ -45,26 +45,53 @@ class AnnotationsController:
         return annotation
 
     def list_annotations_metadata(self, user):
-        anns = Annotations.objects(user=user.email)
+        response = []
+        anns = Annotations.objects(user__in=[user.email])
         if len(anns) == 0:
             raise HTTPException(
                 status_code=404,
-                detail="Não foram encontrados mais nenhum arquivo para anotação."
+                detail="Não foram encontrados arquivos anotados."
             )
         
-        return [self.parse_bboxes(ann) for ann in anns]
+        for ann in anns:
+            annotated = [False] * len(ann.questions)
+            for i, question in enumerate(ann.questions):
+                for vote in question.votes:
+                    if vote.model == user.email:
+                        annotated[i] = True
+                        break
+            
+            if all(annotated):
+                response.append(self.parse_bboxes(ann))
+
+        return response
 
     def get_annotation_metadata(self, user):
-        ann = Annotations.objects(review_counts__lte=0, user=user.email).first()
-        if ann is None:
+        response = None
+        anns = Annotations.objects(user__in=[user.email])
+            
+        for ann in anns:
+            annotated = [False] * len(ann.questions)
+            for i, question in enumerate(ann.questions):
+                for vote in question.votes:
+                    if vote.model == user.email:
+                        annotated[i] = True
+                        break
+            
+            if not all(annotated):
+                response = self.parse_bboxes(ann)
+                break
+        
+        if response is None:
             raise HTTPException(
                 status_code=404,
                 detail="Não foram encontrados mais nenhum arquivo para anotação."
             )
-        return self.parse_bboxes(ann)
+
+        return response
 
     def get_annotation(self, file_id, user):
-        ann = Annotations.objects(id=file_id, user=user.email).first()
+        ann = Annotations.objects(id=file_id, user__in=[user.email]).first()
         if ann is None:
             raise HTTPException(
                 status_code=404,
@@ -83,19 +110,22 @@ class AnnotationsController:
             filename
         )
 
-    def save_evaluation(self, file_id, evaluations):
+    def save_evaluation(self, file_id, evaluations, user):
         annotation = Annotations.objects.get(id=file_id)
 
         for evaluation, question in zip(evaluations, annotation.questions):
             final_eval = evaluation.model_dump()
+            final_eval["model"] = user.email
             i = -1
             for i, vote in enumerate(question.votes):
-                if vote.model == "human":
+                if vote.model == user.email:
                     break
             if i == -1:
+                #adiciona uma nova avaliação
                 question.votes.append(Vote(**final_eval))
+                annotation.review_counts += 1
             else:
+                #atualiza uma avaliação realizada
                 question.votes[i] = Vote(**final_eval)
         
-        annotation.review_counts += 1
         annotation.save()
