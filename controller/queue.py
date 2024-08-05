@@ -1,8 +1,18 @@
 from models.annotation import Annotations, Vote
 from pymongo import MongoClient
 import pandas as pd
+import threading
 
 class AnnotationQueue:
+    _instance = None
+    _lock = threading.Lock()
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:  # This is the only difference
+            with cls._lock:
+                if not cls._instance:
+                    cls._instance = super().__new__(cls)
+        return cls._instance
     
     def __init__(self, 
                  connection_string,
@@ -25,7 +35,7 @@ class AnnotationQueue:
     
     def _load_files(self):
         new_dataframe = []
-        files = Annotations.objects().only("id", "model")
+        files = Annotations.objects(__raw__={'user': {'$exists': False}}).only("id", "model")
         df_files = pd.DataFrame([f.to_mongo() for f in files])
         
         model_count = 0

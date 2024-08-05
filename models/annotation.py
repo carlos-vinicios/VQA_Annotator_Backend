@@ -45,7 +45,7 @@ class QAs(EmbeddedDocument):
     region = StringField()
     text = StringField()
     answer_bboxes = ListField(ListField(IntField()))
-    votes = EmbeddedDocumentListField(Vote, required=True)
+    votes = EmbeddedDocumentListField(Vote)
 
 class Annotations(DynamicDocument):
     filename = StringField(required=True)
@@ -60,5 +60,5 @@ class Annotations(DynamicDocument):
     user = StringField(required=True)
     
     meta = {
-        'collection': 'Annotations5_1'
+        'collection': 'FinalAnnotations'
     }
