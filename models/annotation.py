@@ -54,7 +54,7 @@ class Annotations(DynamicDocument):
     model = StringField(required=True)
     page = IntField(required=True)
     page_size = EmbeddedDocumentField(PageDimension, required=True)
-    questions = EmbeddedDocumentListField(QAs, required=True)
+    questions = EmbeddedDocumentListField(QAs)
     cost = EmbeddedDocumentField(Usage, null=True)
     review_counts = IntField()
     user = ListField()

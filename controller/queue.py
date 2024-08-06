@@ -19,9 +19,12 @@ class AnnotationQueue:
         group_id = config.groups[config.index]
         files = Annotations.objects(group_id__in=[group_id])
         for f in files:
-            f.user.append(user_email)
-            f.save()
-
+            try:
+                f.user.append(user_email)
+                f.save()
+            except:
+                print("Falha no arquivo:", f.filename)
+        
         #atualizando o index
         config.index += 1
         config.save()
