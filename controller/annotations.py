@@ -116,16 +116,17 @@ class AnnotationsController:
         for evaluation, question in zip(evaluations, annotation.questions):
             final_eval = evaluation.model_dump()
             final_eval["model"] = user.email
-            i = -1
+            index = -1
             for i, vote in enumerate(question.votes):
                 if vote.model == user.email:
+                    index = i
                     break
-            if i == -1:
+            if index == -1:
                 #adiciona uma nova avaliação
                 question.votes.append(Vote(**final_eval))
                 annotation.review_counts += 1
             else:
                 #atualiza uma avaliação realizada
-                question.votes[i] = Vote(**final_eval)
+                question.votes[index] = Vote(**final_eval)
         
         annotation.save()
